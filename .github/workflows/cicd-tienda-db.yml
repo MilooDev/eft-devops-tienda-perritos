@@ -1,20 +1,20 @@
-name: CI/CD Tienda Perritos - DB
+name: CI Tienda Perritos - DB
 
 on:
   push:
     branches: [ "main" ]
     paths:
       - "db/**"
+      - ".github/workflows/cicd-tienda-db.yml"
 
 jobs:
-  build-push-deploy-db:
+  build-push-db:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout código
+    - name: Checkout del código
       uses: actions/checkout@v4
 
-    - name: Configurar credenciales AWS
+    - name: Configuración de credenciales AWS
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -22,28 +22,16 @@ jobs:
         aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Login en Amazon ECR (runner)
+    - name: Autenticación en Amazon ECR
+      id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Build imagen DB y push a ECR
+    - name: Compilación y subida de la imagen (Base de Datos)
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: tienda-db
+        IMAGE_TAG: latest
       run: |
         cd db
-        docker build -t tienda-db .
-        docker tag tienda-db:latest ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_DB_REPOSITORY }}:latest
-        docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_DB_REPOSITORY }}:latest
-
-    - name: Desplegar DB vía SSM
-      run: |
-        aws ssm send-command \
-          --instance-ids ${{ secrets.EC2_DB_INSTANCE_ID }} \
-          --document-name "AWS-RunShellScript" \
-          --comment "Actualizar tienda-db desde ECR" \
-          --parameters '{"commands":[
-            "set -e",
-            "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}",
-            "docker pull ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_DB_REPOSITORY }}:latest",
-            "docker stop tienda-db || true",
-            "docker rm tienda-db || true",
-            "docker run -d --name tienda-db -p 3306:3306 -v dbdata:/var/lib/mysql ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_DB_REPOSITORY }}:latest"
-          ]}' \
-          --output text
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

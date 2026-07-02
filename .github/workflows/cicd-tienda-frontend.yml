@@ -1,20 +1,20 @@
-name: CI/CD Tienda Perritos - Frontend
+name: CI Tienda Perritos - Frontend
 
 on:
   push:
     branches: [ "main" ]
     paths:
       - "frontend/**"
+      - ".github/workflows/cicd-tienda-frontend.yml"
 
 jobs:
-  build-push-deploy-frontend:
+  build-push-frontend:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout código
+    - name: Checkout del código
       uses: actions/checkout@v4
 
-    - name: Configurar credenciales AWS
+    - name: Configuración de credenciales AWS
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -22,28 +22,16 @@ jobs:
         aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Login en Amazon ECR (runner)
+    - name: Autenticación en Amazon ECR
+      id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Build imagen Frontend y push a ECR
+    - name: Compilación y subida de la imagen (Frontend)
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: tienda-frontend
+        IMAGE_TAG: latest
       run: |
         cd frontend
-        docker build -t tienda-frontend .
-        docker tag tienda-frontend:latest ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_FRONTEND_REPOSITORY }}:latest
-        docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_FRONTEND_REPOSITORY }}:latest
-
-    - name: Desplegar Frontend vía SSM
-      run: |
-        aws ssm send-command \
-          --instance-ids ${{ secrets.EC2_FRONTEND_INSTANCE_ID }} \
-          --document-name "AWS-RunShellScript" \
-          --comment "Actualizar tienda-frontend desde ECR" \
-          --parameters '{"commands":[
-            "set -e",
-            "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}",
-            "docker pull ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_FRONTEND_REPOSITORY }}:latest",
-            "docker stop tienda-frontend || true",
-            "docker rm tienda-frontend || true",
-            "docker run -d --name tienda-frontend -p 80:80 ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_FRONTEND_REPOSITORY }}:latest"
-          ]}' \
-          --output text
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
