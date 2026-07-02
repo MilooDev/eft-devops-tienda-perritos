@@ -2,154 +2,214 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Tienda de Alimentos para Perritos &#128054;</title>
+  <title>Tienda de Alimentos para Perritos 🐶</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --secondary: #6b7280;
+      --secondary-hover: #4b5563;
+      --bg-color: #f3f4f6;
+      --card-bg: #ffffff;
+      --text-main: #1f2937;
+      --border: #e5e7eb;
+    }
+
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 0;
-      background: #f5f5f5;
+      background: var(--bg-color);
+      color: var(--text-main);
     }
+
     header {
-      background: #3b82f6;
+      background: var(--primary);
       color: white;
-      padding: 16px;
+      padding: 24px 20px;
       text-align: center;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
+
+    header h1 {
+      margin: 0 0 8px 0;
+      font-size: 2rem;
+    }
+
+    header p {
+      margin: 0;
+      font-weight: 400;
+      opacity: 0.9;
+    }
+
     main {
       max-width: 1000px;
-      margin: 20px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin: 30px auto;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
     }
-    h1, h2 {
+
+    .card {
+      background: var(--card-bg);
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border: 1px solid var(--border);
+    }
+
+    h2 {
       margin-top: 0;
+      font-size: 1.25rem;
+      border-bottom: 2px solid var(--bg-color);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
     }
-    .actions {
-      margin-bottom: 16px;
-    }
+
     button {
-      padding: 8px 16px;
-      margin-right: 8px;
+      padding: 10px 18px;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
-      background: #3b82f6;
+      background: var(--primary);
       color: white;
+      font-weight: 600;
+      transition: background 0.2s ease;
     }
-    button.secondary {
-      background: #6b7280;
+
+    button:hover { background: var(--primary-hover); }
+    button.secondary { background: var(--secondary); }
+    button.secondary:hover { background: var(--secondary-hover); }
+    
+    .table-responsive {
+      overflow-x: auto;
+      margin-top: 16px;
     }
-    button.danger {
-      background: #ef4444;
-    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 16px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
       text-align: left;
     }
+
+    th, td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
     th {
-      background: #e5e7eb;
+      background: var(--bg-color);
+      font-weight: 600;
+      color: var(--secondary);
     }
-    tr:nth-child(even) {
-      background: #f9fafb;
-    }
+
+    tr:hover { background: #f9fafb; }
+
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
-      margin-top: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
     }
+
     label {
       display: block;
-      font-weight: bold;
-      margin-bottom: 4px;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 6px;
-      border-radius: 4px;
-      border: 1px solid #d1d5db;
-      box-sizing: border-box;
-    }
-    .status {
-      margin-top: 10px;
+      font-weight: 600;
+      margin-bottom: 6px;
       font-size: 0.9rem;
     }
-    .status.ok {
-      color: #16a34a;
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-family: inherit;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
     }
-    .status.error {
-      color: #dc2626;
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
+
+    .form-actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .status.ok { color: #16a34a; }
+    .status.error { color: #dc2626; }
   </style>
 </head>
 <body>
   <header>
-    <h1>Tienda de Alimentos para Perritos &#128054;</h1>
-    <p>Gestión CRUD de productos en contenedores Docker (Frontend + Backend + MySQL)</p>
+    <h1>Tienda de Alimentos para Perritos 🐶</h1>
+    <p>Gestión CRUD de productos en contenedores Docker</p>
   </header>
+  
   <main>
-    <section>
-      <h2>Productos</h2>
-      <div class="actions">
-        <button id="btnCargar">Cargar Productos</button>
+    <div class="card">
+      <h2>Inventario de Productos</h2>
+      <button id="btnCargar">Actualizar Inventario</button>
+      
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyProductos">
+            <!-- Filas dinámicas -->
+          </tbody>
+        </table>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Precio</th>
-            <th>Stock</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyProductos">
-          <!-- Aqu�� se insertan filas dinamicamente -->
-        </tbody>
-      </table>
-    </section>
+    </div>
 
-    <section>
-      <h2 id="formTitle">Nuevo producto</h2>
+    <div class="card">
+      <h2 id="formTitle">Agregar Nuevo Producto</h2>
       <div class="form-grid">
         <div>
-          <label for="nombre">Nombre</label>
+          <label for="nombre">Nombre del Producto</label>
           <input type="text" id="nombre" placeholder="Ej: Alimento Premium Cachorro" />
         </div>
         <div>
-          <label for="descripcion">Descripción</label>
-          <textarea id="descripcion" rows="2" placeholder="Ej: Sabor pollo, razas pequeñas"></textarea>
-        </div>
-        <div>
-          <label for="precio">Precio</label>
+          <label for="precio">Precio ($)</label>
           <input type="number" id="precio" step="0.01" min="0" placeholder="Ej: 19990" />
         </div>
         <div>
-          <label for="stock">Stock</label>
+          <label for="stock">Stock Disponible</label>
           <input type="number" id="stock" min="0" placeholder="Ej: 10" />
         </div>
+        <div style="grid-column: 1 / -1;">
+          <label for="descripcion">Descripción</label>
+          <textarea id="descripcion" rows="2" placeholder="Ej: Sabor pollo, especial para razas pequeñas..."></textarea>
+        </div>
       </div>
-      <div class="actions" style="margin-top: 12px;">
-        <button id="btnGuardar">Guardar</button>
-        <button id="btnCancelar" class="secondary">Cancelar</button>
+      <div class="form-actions">
+        <button id="btnGuardar">Guardar Producto</button>
+        <button id="btnCancelar" class="secondary">Limpiar Campos</button>
       </div>
       <div id="status" class="status"></div>
-    </section>
+    </div>
   </main>
 
   <script src="app.js"></script>
 </body>
 </html>
-
-<!-- trigger pipeline frontend -->
