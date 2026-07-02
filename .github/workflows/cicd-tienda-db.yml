@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - name: Checkout código
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Configurar credenciales AWS
       uses: aws-actions/configure-aws-credentials@v4
@@ -23,14 +23,14 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Login en Amazon ECR (runner)
-      uses: aws-actions/amazon-ecr-login@v1
+      uses: aws-actions/amazon-ecr-login@v2
 
     - name: Build imagen DB y push a ECR
       run: |
         cd db
         docker build -t tienda-db .
-        docker tag tienda-db:latest ${{ secrets.ECR_REPO_URL_DB }}:latest
-        docker push ${{ secrets.ECR_REPO_URL_DB }}:latest
+        docker tag tienda-db:latest ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_DB_REPOSITORY }}:latest
+        docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_DB_REPOSITORY }}:latest
 
     - name: Desplegar DB vía SSM
       run: |
@@ -40,10 +40,10 @@ jobs:
           --comment "Actualizar tienda-db desde ECR" \
           --parameters '{"commands":[
             "set -e",
-            "aws ecr get-login-password --region '${{ secrets.AWS_REGION }}' | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}",
-            "docker pull ${{ secrets.ECR_REPO_URL_DB }}:latest",
+            "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}",
+            "docker pull ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_DB_REPOSITORY }}:latest",
             "docker stop tienda-db || true",
             "docker rm tienda-db || true",
-            "docker run -d --name tienda-db -p 3306:3306 -v dbdata:/var/lib/mysql ${{ secrets.ECR_REPO_URL_DB }}:latest"
+            "docker run -d --name tienda-db -p 3306:3306 -v dbdata:/var/lib/mysql ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_DB_REPOSITORY }}:latest"
           ]}' \
           --output text
