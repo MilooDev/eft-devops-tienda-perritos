@@ -35,3 +35,9 @@ jobs:
         cd frontend
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: Despliegue automático en ECS
+      run: |
+        aws ecs update-service --cluster ep3-cluster \
+          --service ep3-frontend-service \
+          --force-new-deployment
